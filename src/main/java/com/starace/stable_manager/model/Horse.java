@@ -42,19 +42,4 @@ public class Horse {
 
     private String medicalNotes; // Just in case
 
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "stable_id")
-    @JsonBackReference
-    private Stable stable;
-
-    @JsonManagedReference("horse-health") // Must match HealthRecord
-    @OneToMany(mappedBy = "horse")
-    private List<HealthRecord> healthRecords;
-
-    @JsonManagedReference("horse-medication")
-    @OneToMany(mappedBy = "horse")
-    private List<Medication> medications;
-
-
 }
