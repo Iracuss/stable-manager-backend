@@ -35,4 +35,4 @@ build/
 .DS_Store
 
 application-secret.properties
-application.properties
+src/main/resources/application.properties
