@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.starace.stable_manager.dto.UserRequest;
 import com.starace.stable_manager.enums.Role;
 import com.starace.stable_manager.model.User;
 import com.starace.stable_manager.repository.UserRepository;
@@ -38,6 +39,23 @@ public class UserService {
     public User getMyAccount() {
         User user = getCurrentUser();
         return user;
+    }
+
+    // Going to skip password on purpose right now
+    public User updateAccount(UserRequest request) {
+        User currentUser = getCurrentUser();
+
+        return userRepository.findById(currentUser.getId()).map(user -> {
+            if(request.getEmail() != null) user.setEmail(request.getEmail());
+            if(request.getUsername() != null) user.setUsername(request.getUsername());
+
+            user.setId(currentUser.getId());
+            user.setPassword(currentUser.getPassword());
+            user.setRole(currentUser.getRole());
+            user.setHorses(currentUser.getHorses());
+
+            return userRepository.save(user);
+        }).orElseThrow(() -> new RuntimeException("User not found."));
     }
 
     public void deleteUser(Long id) {
