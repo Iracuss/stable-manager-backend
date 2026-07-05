@@ -9,12 +9,15 @@ import com.starace.stable_manager.dto.RegisterRequest;
 import com.starace.stable_manager.service.AuthService;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
 public class AuthController {
     
