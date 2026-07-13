@@ -4,6 +4,7 @@ import com.starace.stable_manager.repository.UserRepository;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -18,14 +19,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class HorseService {
-
     private final UserRepository userRepository;
-
     private final HorseRepository horseRepository;
-
-    // HorseService(UserRepository userRepository) {
-    //     this.userRepository = userRepository;
-    // }
 
     public Horse saveHorse(HorseRequest request) {
         Horse horse = new Horse();
@@ -40,7 +35,7 @@ public class HorseService {
         horse.setLastFarrierDate(request.getLastFarrierDate());
         horse.setMedicalNotes(request.getMedicalNotes());
         horse.setUser(getCurrentUser());
-        checkHealthAlerts(horse);
+        // checkHealthAlerts(horse);
         return horseRepository.save(horse);
     }
 
@@ -48,7 +43,7 @@ public class HorseService {
         User currentUser = getCurrentUser();
         List<Horse> horses = horseRepository.findByUserId(currentUser.getId());
 
-        horses.forEach(this::checkHealthAlerts); // check each horses need for something
+        // horses.forEach(this::checkHealthAlerts); // check each horses need for something
         return horses;
     }
 
@@ -58,6 +53,7 @@ public class HorseService {
             .orElseThrow(() -> new EntityNotFoundException("Horse not found with id: " + id));
     }
 
+    @Scheduled(cron = "@midnight")
     public void checkHealthAlerts(Horse horse) {
         if(horse.getLastCogginDate() != null) {
             if(horse.getLastCogginDate().isBefore(LocalDate.now().minusYears(1))) {
@@ -94,7 +90,7 @@ public class HorseService {
             if(horseDetails.getLastFarrierDate() != null) horse.setLastFarrierDate(horseDetails.getLastFarrierDate());
             if(horseDetails.getMedicalNotes() != null) horse.setMedicalNotes(horseDetails.getMedicalNotes());
             
-            checkHealthAlerts(horse);
+            // checkHealthAlerts(horse);
             return horseRepository.save(horse);
         }).orElseThrow(() -> new RuntimeException("Horse not found with id " + id));
     }

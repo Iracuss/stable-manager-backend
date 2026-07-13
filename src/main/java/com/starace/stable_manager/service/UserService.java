@@ -1,5 +1,6 @@
 package com.starace.stable_manager.service;
 
+import com.starace.stable_manager.security.JwtService;
 import java.util.List;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    private final JwtService jwtService;
     private final UserRepository userRepository;
 
     private User getCurrentUser() {
@@ -48,7 +50,7 @@ public class UserService {
     }
 
     // Going to skip password on purpose right now
-    public UserResponse updateAccount(UserRequest request) {
+    public String updateAccount(UserRequest request) {
         User currentUser = getCurrentUser();
 
         if(request.getEmail() != null) currentUser.setEmail(request.getEmail());
@@ -56,12 +58,11 @@ public class UserService {
 
         User savedUser = userRepository.save(currentUser);
 
-        UserResponse response = new UserResponse();
-        response.setId(savedUser.getId());
-        response.setEmail(savedUser.getEmail());
-        response.setUsername(savedUser.getUsername());
-        response.setRole(savedUser.getRole());
-        return response;
+        // UserResponse response = new UserResponse();
+        // response.setEmail(savedUser.getEmail());
+        // response.setUsername(savedUser.getUsername());
+        // response.setRole(savedUser.getRole());
+        return jwtService.generateToken(savedUser);
     }
 
     public void deleteUser(Long id) {

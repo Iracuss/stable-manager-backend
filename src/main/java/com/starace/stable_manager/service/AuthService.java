@@ -1,5 +1,7 @@
 package com.starace.stable_manager.service;
 
+import java.util.Optional;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -8,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.starace.stable_manager.dto.ForgotPasswordRequest;
 import com.starace.stable_manager.dto.LoginRequest;
 import com.starace.stable_manager.dto.RegisterRequest;
 import com.starace.stable_manager.enums.Role;
@@ -40,6 +43,25 @@ public class AuthService {
         user.setRole(Role.USER);
         userRepository.save(user);
     }
+
+    // Need to work on this but this should be fine for now
+    public void forgotPassword(ForgotPasswordRequest request) {
+        Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
+
+        if(userOptional.isEmpty()) {
+            // Don't do anything
+            return;
+        }
+
+        User user = userOptional.get();
+
+        // Create reset link
+        // Email to user the link (Probably need a email service)
+
+    }
+
+    // Need Password reset function
+
 
     public String login(LoginRequest request) {
         try {
