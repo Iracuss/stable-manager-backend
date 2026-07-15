@@ -13,6 +13,7 @@ import com.starace.stable_manager.dto.HorseAlert;
 import com.starace.stable_manager.enums.AlertType;
 import com.starace.stable_manager.model.Horse;
 import com.starace.stable_manager.repository.HorseRepository;
+import com.starace.stable_manager.service.EmailService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 public class HorseNotificationScheduler {
     // public final HorseService horseService;
     public final HorseRepository horseRepository;
+    public final EmailService emailService;
 
     @Scheduled(cron = "@midnight")
     public void dailyOverdueHorseCheck() {
@@ -49,7 +51,7 @@ public class HorseNotificationScheduler {
         for(Map.Entry<String, List<HorseAlert>> entry : alertsByEmail.entrySet()) {
             String email = entry.getKey();
             List<HorseAlert> alerts = entry.getValue();
-            // Send email
+            emailService.sendOverdueEmail(email, alerts);
         }
     }
 

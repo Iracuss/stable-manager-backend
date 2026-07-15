@@ -1,6 +1,7 @@
 package com.starace.stable_manager.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -20,7 +21,6 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String senderEmail;
 
-    // Working on
     @Async
     public void sendOverdueEmail(String to, List<HorseAlert> alertMessage) {
         SimpleMailMessage message = new SimpleMailMessage();
@@ -31,10 +31,27 @@ public class EmailService {
         message.setSubject("You have horses overdue for appointments");
         message.setText(textMessage);
 
-        // mailSender.send(message);
+        mailSender.send(message);
+    }
+
+    public void sendPasswordResetEmail(String to, String resetLink) {
+
     }
 
     private String formatOverdueEmail(List<HorseAlert> alertMessage) {
-        return "";
+        StringBuilder formattedMessage = new StringBuilder();
+
+        alertMessage.forEach(alert -> {
+            formattedMessage
+                .append(alert.getHorseName()).append(" is overdue for: ");
+
+            String formattedAlerts = alert.getAlerts().stream()
+                .map(type -> type.name())
+                .collect(Collectors.joining(", "));
+
+            formattedMessage.append(formattedAlerts).append('\n');
+        });
+
+        return formattedMessage.toString();
     }
 }

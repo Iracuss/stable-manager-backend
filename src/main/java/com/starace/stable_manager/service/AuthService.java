@@ -1,7 +1,9 @@
 package com.starace.stable_manager.service;
 
 import java.util.Optional;
+import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,6 +29,10 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final EmailService emailService;
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     public void register(RegisterRequest request) {
         if(userRepository.findByUsername(request.getUsername()).isPresent()) {
@@ -55,13 +61,17 @@ public class AuthService {
 
         User user = userOptional.get();
 
-        // Create reset link
-        // Email to user the link (Probably need a email service)
+        String token = UUID.randomUUID().toString();
 
+        String resetLink = frontendUrl + "/reset-password?token=" + token;
+
+        emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
     }
 
     // Need Password reset function
+    public void changePassword() {
 
+    }
 
     public String login(LoginRequest request) {
         try {
