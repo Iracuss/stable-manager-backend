@@ -39,9 +39,9 @@ public class Horse {
 
     private String medicalNotes; // Just in case
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "stable_id", nullable = false)
     @JsonBackReference
-    private User user;
+    private Stable stable;
 
 }

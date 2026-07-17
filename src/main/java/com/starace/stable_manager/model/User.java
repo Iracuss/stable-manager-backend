@@ -45,9 +45,10 @@ public class User implements UserDetails {
     @Column(unique = true)
     private String username;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    // I need to delete the memberships?
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonManagedReference
-    private List<Horse> horses = new ArrayList<>();
+    private List<Membership> memberships = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

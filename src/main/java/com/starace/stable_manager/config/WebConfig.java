@@ -15,15 +15,6 @@ public class WebConfig {
     @Value("${frontend.url}")
     private String frontendUrl;
 
-    // @Override
-    // public void addCorsMappings(CorsRegistry registry) {
-    //     // Allow all endpoints (/**) to be accessed by the frontend URL
-    //     registry.addMapping("/**")
-    //             .allowedOrigins(frontendUrl)
-    //             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-    //             .allowedHeaders("*");
-    // }
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
