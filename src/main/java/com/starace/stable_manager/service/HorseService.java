@@ -1,7 +1,6 @@
 package com.starace.stable_manager.service;
 
-import com.starace.stable_manager.repository.UserRepository;
-import java.time.LocalDate;
+// import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,17 +10,23 @@ import com.starace.stable_manager.dto.HorseRequest;
 import com.starace.stable_manager.model.Horse;
 import com.starace.stable_manager.model.User;
 import com.starace.stable_manager.repository.HorseRepository;
+import com.starace.stable_manager.repository.StableRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
+// Need to fix this but this is last
+
 @Service
 @RequiredArgsConstructor
 public class HorseService {
-    private final UserRepository userRepository;
     private final HorseRepository horseRepository;
+    private final StableRepository stableRepository;
+    private final CurrentUserService currentUserService;
 
     public Horse saveHorse(HorseRequest request) {
+
+
         Horse horse = new Horse();
         horse.setName(request.getName());
         horse.setBreed(request.getBreed());
@@ -33,13 +38,15 @@ public class HorseService {
         horse.setLastCogginDate(request.getLastCogginDate());
         horse.setLastFarrierDate(request.getLastFarrierDate());
         horse.setMedicalNotes(request.getMedicalNotes());
-        horse.setUser(getCurrentUser());
+        // horse.setUser(getCurrentUser());
+        // horse.setStable(horse);
+        // get and set the stable its in
         // checkHealthAlerts(horse);
         return horseRepository.save(horse);
     }
 
     public List<Horse> getAllHorses() {
-        User currentUser = getCurrentUser();
+        User currentUser = currentUserService.getCurrentUser();
         List<Horse> horses = horseRepository.findByUserId(currentUser.getId());
 
         // horses.forEach(this::checkHealthAlerts); // check each horses need for something
@@ -47,35 +54,35 @@ public class HorseService {
     }
 
     public Horse getHorseById(Long id) {
-        User currentUser = getCurrentUser();
+        User currentUser = currentUserService.getCurrentUser();
         return horseRepository.findByIdAndUserId(id, currentUser.getId())
             .orElseThrow(() -> new EntityNotFoundException("Horse not found with id: " + id));
     }
 
-    public void checkHealthAlerts(Horse horse) {
-        if(horse.getLastCogginDate() != null) {
-            if(horse.getLastCogginDate().isBefore(LocalDate.now().minusYears(1))) {
-                System.out.println("LEGAL ALERT: " + horse.getName() + " has an EXPIRED Coggins test!");
-            }
-        }
+    // public void checkHealthAlerts(Horse horse) {
+    //     if(horse.getLastCogginDate() != null) {
+    //         if(horse.getLastCogginDate().isBefore(LocalDate.now().minusYears(1))) {
+    //             System.out.println("LEGAL ALERT: " + horse.getName() + " has an EXPIRED Coggins test!");
+    //         }
+    //     }
 
-        if(horse.getLastFarrierDate() != null) {
-            if(horse.getLastFarrierDate().isBefore(LocalDate.now().minusWeeks(6))) {
-                System.out.println("MAINTENANCE ALERT: " + horse.getName() + " is overdue for the Farrier!");
-            }
-        }
-    }
+    //     if(horse.getLastFarrierDate() != null) {
+    //         if(horse.getLastFarrierDate().isBefore(LocalDate.now().minusWeeks(6))) {
+    //             System.out.println("MAINTENANCE ALERT: " + horse.getName() + " is overdue for the Farrier!");
+    //         }
+    //     }
+    // }
 
-    public int calculateRacingAge(Horse horse) {
-        if (horse.getBirthYear() == null) return 0;
+    // public int calculateRacingAge(Horse horse) {
+    //     if (horse.getBirthYear() == null) return 0;
         
-        int currentYear = LocalDate.now().getYear();
-        // Racing age formula
-        return currentYear - horse.getBirthYear();
-    }
+    //     int currentYear = LocalDate.now().getYear();
+    //     // Racing age formula
+    //     return currentYear - horse.getBirthYear();
+    // }
 
     public Horse updateHorse(Long id, HorseRequest horseDetails) {
-        User currentUser = getCurrentUser();
+        User currentUser = currentUserService.getCurrentUser();
         return horseRepository.findByIdAndUserId(id, currentUser.getId()).map(horse -> {
             if(horseDetails.getName() != null) horse.setName(horseDetails.getName());
             if(horseDetails.getBreed() != null) horse.setBreed(horseDetails.getBreed());
@@ -94,19 +101,10 @@ public class HorseService {
     }
 
     public void deleteHorse(Long id) {
-        User currentUser = getCurrentUser();
+        User currentUser = currentUserService.getCurrentUser();
         if(!horseRepository.findByIdAndUserId(id, currentUser.getId()).isPresent()) {
             throw new RuntimeException("Cannot delete. Horse not found with id: " + id);
         }
         horseRepository.deleteById(id);
-    }
-
-    private User getCurrentUser() {
-        String username = SecurityContextHolder.getContext()
-            .getAuthentication()
-            .getName();
-
-        return userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found"));
     }
 }

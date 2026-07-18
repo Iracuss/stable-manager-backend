@@ -35,7 +35,7 @@ public class HorseNotificationScheduler {
             List<AlertType> alertsForHorse = checkAlert(horse);
 
             if(!alertsForHorse.isEmpty()) {
-                String userEmail = horse.getUser().getEmail();
+                String userEmail = ""; //horse.getUser().getEmail(); have to leave it like this for now
                 String horseName = horse.getName();
 
                 HorseAlert horseAlert = new HorseAlert();

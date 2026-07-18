@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface HorseRepository extends JpaRepository<Horse, Long>{
-    List<Horse> findByUserId(Long userId);
-    Optional<Horse> findByIdAndUserId(Long id, Long userId);
+    List<Horse> findByStableId(Long stableId);
+    Optional<Horse> findByIdAndStableId(Long id, Long stableId);
 }
