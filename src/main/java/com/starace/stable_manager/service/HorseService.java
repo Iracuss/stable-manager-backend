@@ -1,16 +1,16 @@
 package com.starace.stable_manager.service;
 
+import java.util.ArrayList;
 // import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.starace.stable_manager.dto.HorseRequest;
+import com.starace.stable_manager.dto.HorseResponse;
 import com.starace.stable_manager.model.Horse;
 import com.starace.stable_manager.model.Stable;
-import com.starace.stable_manager.model.User;
 import com.starace.stable_manager.repository.HorseRepository;
 import com.starace.stable_manager.repository.StableRepository;
 
@@ -26,7 +26,7 @@ public class HorseService {
     private final StableRepository stableRepository;
     private final MembershipService membershipService;
 
-    public Horse saveHorse(Long stableId, HorseRequest request) {
+    public HorseResponse saveHorse(Long stableId, HorseRequest request) {
         Optional<Stable> optStable = stableRepository.findById(stableId);
 
         if(optStable.isEmpty()) {
@@ -34,7 +34,7 @@ public class HorseService {
         }
 
         // Check if member of stable
-        if(membershipService.checkMembershipStatus(stableId)) {
+        if(!membershipService.checkEditMembershipStatus(stableId)) {
             throw new RuntimeException("User is not a member of this stable");
         }
 
@@ -52,55 +52,40 @@ public class HorseService {
         horse.setLastFarrierDate(request.getLastFarrierDate());
         horse.setMedicalNotes(request.getMedicalNotes());
         horse.setStable(stable);
-        // horse.setUser(getCurrentUser());
-        // get and set the stable its in
-        // checkHealthAlerts(horse);
-        return horseRepository.save(horse);
+
+        HorseResponse response = toHorseResponse(horse);
+        horseRepository.save(horse);
+
+        return response;
     }
 
-    public List<Horse> getAllHorsesInStable(Long stableId) {
+    public List<HorseResponse> getAllHorsesInStable(Long stableId) {
         // Check if user is member of stable
-        if(membershipService.checkMembershipStatus(stableId)) {
+        if(!membershipService.checkMembershipStatus(stableId)) {
             throw new RuntimeException("User is not a member of this stable");
         }
 
         List<Horse> horses = horseRepository.findByStableId(stableId);
+        List<HorseResponse> responses = new ArrayList<>();
 
-        // horses.forEach(this::checkHealthAlerts); // check each horses need for something
-        return horses;
+        horses.forEach(horse -> {
+            HorseResponse response = toHorseResponse(horse);
+            responses.add(response);
+        });
+
+        return responses;
     }
 
-    public Horse getHorseById(Long id, Long stableId) {
-
-        return horseRepository.findByIdAndStableId(id, stableId)
+    public HorseResponse getHorseById(Long id, Long stableId) {
+        Horse horse = horseRepository.findByIdAndStableId(id, stableId)
             .orElseThrow(() -> new EntityNotFoundException("Horse not found with id: " + id));
+
+        return toHorseResponse(horse);
     }
 
-    // public void checkHealthAlerts(Horse horse) {
-    //     if(horse.getLastCogginDate() != null) {
-    //         if(horse.getLastCogginDate().isBefore(LocalDate.now().minusYears(1))) {
-    //             System.out.println("LEGAL ALERT: " + horse.getName() + " has an EXPIRED Coggins test!");
-    //         }
-    //     }
-
-    //     if(horse.getLastFarrierDate() != null) {
-    //         if(horse.getLastFarrierDate().isBefore(LocalDate.now().minusWeeks(6))) {
-    //             System.out.println("MAINTENANCE ALERT: " + horse.getName() + " is overdue for the Farrier!");
-    //         }
-    //     }
-    // }
-
-    // public int calculateRacingAge(Horse horse) {
-    //     if (horse.getBirthYear() == null) return 0;
-        
-    //     int currentYear = LocalDate.now().getYear();
-    //     // Racing age formula
-    //     return currentYear - horse.getBirthYear();
-    // }
-
-    public Horse updateHorse(Long id, Long stableId, HorseRequest horseDetails) {
+    public HorseResponse updateHorse(Long id, Long stableId, HorseRequest horseDetails) {
         // Check if member of stable
-        if(membershipService.checkMembershipStatus(stableId)) {
+        if(!membershipService.checkEditMembershipStatus(stableId)) {
             throw new RuntimeException("User is not a member of this stable");
         }
 
@@ -116,14 +101,16 @@ public class HorseService {
             if(horseDetails.getLastFarrierDate() != null) horse.setLastFarrierDate(horseDetails.getLastFarrierDate());
             if(horseDetails.getMedicalNotes() != null) horse.setMedicalNotes(horseDetails.getMedicalNotes());
             
-            // checkHealthAlerts(horse);
-            return horseRepository.save(horse);
+            HorseResponse response = toHorseResponse(horse);
+            horseRepository.save(horse);
+
+            return response;
         }).orElseThrow(() -> new RuntimeException("Horse not found with id " + id));
     }
 
     public void deleteHorse(Long id, Long stableId) {
         // Check if member of stable
-        if(membershipService.checkMembershipStatus(stableId)) {
+        if(!membershipService.checkEditMembershipStatus(stableId)) {
             throw new RuntimeException("User is not a member of this stable");
         }
 
@@ -131,5 +118,23 @@ public class HorseService {
             throw new RuntimeException("Cannot delete. Horse not found with id: " + id);
         }
         horseRepository.deleteById(id);
+    }
+
+    public HorseResponse toHorseResponse(Horse horse) {
+        HorseResponse response = new HorseResponse();
+        response.setId(horse.getId());
+        response.setName(horse.getName());
+        response.setNickname(horse.getNickname());
+        response.setBreed(horse.getBreed());
+        response.setBirthYear(horse.getBirthYear());
+        response.setMicrochipId(horse.getMicrochipId());
+        response.setIsMdBred(horse.getIsMdBred());
+        response.setFoalingState(horse.getFoalingState());
+        response.setLastCogginDate(horse.getLastCogginDate());
+        response.setLastFarrierDate(horse.getLastFarrierDate());
+        response.setMedicalNotes(horse.getMedicalNotes());
+        response.setStableId(horse.getStable().getId());
+
+        return response;
     }
 }

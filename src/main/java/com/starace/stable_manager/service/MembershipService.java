@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.starace.stable_manager.dto.MembershipRequest;
 import com.starace.stable_manager.enums.MembershipRole;
 import com.starace.stable_manager.model.Membership;
 import com.starace.stable_manager.model.Stable;
@@ -58,22 +57,8 @@ public class MembershipService {
         return membershipRepository.save(membership);
     }
 
-    // Accepting the invite route (Sent email)
-    // public Membership createJoinedMembership(MembershipRequest request) {
-    //     User currentUser = currentUserService.getCurrentUser();
-    //     Membership membership = new Membership();
-    //     membership.setUser(currentUser);
-    //     membership.setAcceptedInvite(true);
-    //     // membership.setStable(); how do I get this?
-    //     membership.setJoinedAt(LocalDateTime.now());
-    //     membership.setMembershipRole(MembershipRole.STAFF);
-    //     membership.setInvitedBy(null);
-    //     // Not finished
-
-    //     return membershipRepository.save(membership);
-    // }
-
     public void deleteMembership(Long membershipId) {
+        // Probably need to check for authorities first
         membershipRepository.deleteById(membershipId);
     }
 
@@ -109,5 +94,4 @@ public class MembershipService {
 
         return true;
     }
-    
 }
