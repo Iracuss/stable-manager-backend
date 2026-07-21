@@ -25,29 +25,29 @@ public class HorseController {
 
     private final HorseService horseService;
 
-    @GetMapping
-    public List<Horse> getAllHorses() {
-        return horseService.getAllHorses();
+    @GetMapping("/{stableId}")
+    public List<Horse> getAllHorsesInStable(@PathVariable Long stableId) {
+        return horseService.getAllHorsesInStable(stableId);
     }
 
-    @GetMapping("/{id}")
-    public Horse getHorseById(@PathVariable Long id) {
-        return horseService.getHorseById(id);
+    @GetMapping("/{id}/{stableId}")
+    public Horse getHorseById(@PathVariable Long id, @PathVariable Long stableId) {
+        return horseService.getHorseById(id, stableId);
     }
 
-    @PostMapping
-    public Horse createHorse(@RequestBody HorseRequest horse) {        
-        return horseService.saveHorse(horse);
+    @PostMapping("/{stableId}")
+    public Horse createHorse(@PathVariable Long stableId, @RequestBody HorseRequest horse) {        
+        return horseService.saveHorse(stableId, horse);
     }
     
-    @PutMapping("/{id}")
-    public Horse updateHorse(@PathVariable Long id, @RequestBody HorseRequest horseDetails) {
-        return horseService.updateHorse(id, horseDetails);
+    @PutMapping("/{id}/{stableId}")
+    public Horse updateHorse(@PathVariable Long id, @PathVariable Long stableId, @RequestBody HorseRequest horseDetails) {
+        return horseService.updateHorse(id, stableId, horseDetails);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteHorse(@PathVariable Long id) {
-        horseService.deleteHorse(id);
+    @DeleteMapping("/{id}/{stableId}")
+    public void deleteHorse(@PathVariable Long id, @PathVariable Long stableId) {
+        horseService.deleteHorse(id, stableId);
     }
     
 }

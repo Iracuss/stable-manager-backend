@@ -36,7 +36,10 @@ public class StableService {
     }
 
     public List<Stable> getAllUserStables() {
-        return stableRepository.findByMemberships(membershipService.getAllUserMemberships());
+        return membershipService.getAllUserMemberships()
+            .stream()
+            .map(membership -> membership.getStable())
+            .toList();
     }
 
     public Stable createStable(StableRequest request) {

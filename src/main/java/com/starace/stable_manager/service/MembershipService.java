@@ -80,7 +80,7 @@ public class MembershipService {
     public boolean checkMembershipStatus(Long stableId) {
         Long currentUserId = currentUserService.getCurrentUser().getId();
 
-        Optional<Membership> optMembership = membershipRepository.findByUserIdAndStableId(stableId, currentUserId);
+        Optional<Membership> optMembership = membershipRepository.findByUserIdAndStableId(currentUserId, stableId);
 
         // Maybe throw an error and not a false?
         if(optMembership.isEmpty()) {
@@ -93,7 +93,7 @@ public class MembershipService {
     public boolean checkEditMembershipStatus(Long stableId) {
         Long currentUserId = currentUserService.getCurrentUser().getId();
 
-        Optional<Membership> optMembership = membershipRepository.findByUserIdAndStableId(stableId, currentUserId);
+        Optional<Membership> optMembership = membershipRepository.findByUserIdAndStableId(currentUserId, stableId);
 
         // Maybe throw an error and not a false?
         if(optMembership.isEmpty()) {
@@ -103,7 +103,7 @@ public class MembershipService {
         Membership membership = optMembership.get();
         MembershipRole role = membership.getMembershipRole();
 
-        if(role != MembershipRole.MANAGER || role != MembershipRole.OWNER) {
+        if(role != MembershipRole.MANAGER && role != MembershipRole.OWNER) {
             return false;
         }
 

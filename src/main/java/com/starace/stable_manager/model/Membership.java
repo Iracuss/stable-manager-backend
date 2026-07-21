@@ -41,7 +41,7 @@ public class Membership {
     private User user;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "stable_id")
+    @JoinColumn(name = "stable_id", nullable = false)
     @JsonBackReference
     private Stable stable;
 
